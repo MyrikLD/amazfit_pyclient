@@ -136,12 +136,6 @@ class ChunkedDecoder:
                 buf,
             )
 
-            # if flags.needs_ack:
-            #     ack_payload = struct.pack(
-            #         "<5B", 0x04, 0x00, self.current_handle, 0x01, self.last_count
-            #     )
-            #     await self.client.write_gatt_char(self.char, ack_payload)
-
             if self.current_type not in self.callbacks:
                 self.logger.warning("No callback for event type: %s", t_name)
             else:
@@ -149,6 +143,12 @@ class ChunkedDecoder:
                     await self.callbacks[self.current_type](buf)
                 except Exception as e:
                     self.logger.exception("Failed to handle payload: %s", e)
+
+            if flags.needs_ack:
+                ack_payload = struct.pack(
+                    "<5B", 0x04, 0x00, self.current_handle, 0x01, self.last_count
+                )
+                await self.client.write_gatt_char(self.char, ack_payload)
 
             self.current_type = 0
             self.current_handle = None

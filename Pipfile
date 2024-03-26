@@ -8,6 +8,7 @@ bleak = "*"
 httpx = "*"
 yarl = "*"
 cryptography = "*"
+pytest-asyncio = "*"
 
 [dev-packages]
 pytest = "*"

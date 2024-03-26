@@ -52,7 +52,9 @@ class FakeResponse:
     def json(cls, data: dict):
         return cls(
             status_code=200,
-            content=json.dumps(data, ensure_ascii=False).encode("utf-8"),
+            content=json.dumps(data, ensure_ascii=False)
+            .replace(" ", "")
+            .encode("utf-8"),
         )
 
     @property
@@ -78,61 +80,31 @@ class WeatherServer:
         weather = String.valueOf(mapToZeppOsWeatherCode(weatherSpec.currentConditionCode))
         wind = new Wind(weatherSpec.windDirection, Math.round(weatherSpec.windSpeed))
         """
-        """
-        {
-            "currentWeatherModel": {
-                "humidity": {"unit": "%", "value": "33"},
-                "pressure": {"unit": "mb", "value": "1001"},
-                "pubTime": "2024-03-23T11:31:00+0100",
-                "temperature": {"unit": "℃", "value": "7"},
-                "uvIndex": "1",
-                "visibility": {"unit": "km", "value": ""},
-                "weather": "1",
-                "wind": {
-                    "direction": {"unit": "°", "value": "45"},
-                    "speed": {"unit": "km/h", "value": "13"},
-                },
-            },
-            "aqiModel": {
-                "aqi": "31",
-                "co": "1.6",
-                "no2": "10.4",
-                "o3": "22.6",
-                "pm10": "13",
-                "pm25": "31",
-                "pubTime": "2024-03-23T11:00:00+0100",
-                "so2": "3.4",
-            },
-        }
-        """
-
-        current_weather_model = {
-            "humidity": {"unit": "%", "value": "33"},
-            "pressure": {"unit": "mb", "value": "1000"},
-            "pubTime": "2024-03-26T00:33:00+0100",
-            "temperature": {"unit": "℃", "value": "3"},
-            "uvIndex": "1",
-            "visibility": {"unit": "km", "value": ""},
-            "weather": "1",
-            "wind": {
-                "direction": {"unit": "°", "value": "33"},
-                "speed": {"unit": "km/h", "value": "33"},
-            },
-        }
-        aqi_model = {
-            "aqi": "31",
-            "co": "1.6",
-            "no2": "10.4",
-            "o3": "33.3",
-            "pm10": "13",
-            "pm25": "31",
-            "pubTime": "2024-03-26T00:00:00+0100",
-            "so2": "3.3",
-        }
 
         return FakeResponse.json(
             {
-                "currentWeatherModel": current_weather_model,
-                "aqiModel": aqi_model,
+                "currentWeatherModel": {
+                    "humidity": {"unit": "%", "value": "33"},
+                    "pressure": {"unit": "mb", "value": "0"},
+                    "pubTime": "2024-03-26T13:20:47+0100",
+                    "temperature": {"unit": "℃", "value": "33"},
+                    "uvIndex": "0",
+                    "visibility": {"unit": "km", "value": "0"},
+                    "weather": "1",
+                    "wind": {
+                        "direction": {"unit": "°", "value": "33"},
+                        "speed": {"unit": "km/h", "value": "33"},
+                    },
+                },
+                "aqiModel": {
+                    "aqi": None,
+                    "co": None,
+                    "no2": None,
+                    "o3": None,
+                    "pm10": None,
+                    "pm25": None,
+                    "pubTime": None,
+                    "so2": None,
+                },
             }
         )

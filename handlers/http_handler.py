@@ -50,18 +50,21 @@ class HttpClient(BaseHandler):
 
         assert len_headers == len(headers)
 
-        async with httpx.AsyncClient() as client:
-            response = self.weather.get(url)
-            # response = await client.request(method, url, headers=headers)
-            self.logger.info(
-                f"{method} {url}[{response.status_code}] -> {response.content}"
+        await self.request(request_id, method, url, headers)
+
+    async def request(
+        self, request_id: int, method: str, url: str, headers: dict = None
+    ):
+        response = self.weather.get(url)
+        self.logger.info(
+            f"{method} {url}[{response.status_code}] -> {response.content}"
+        )
+        if response.is_success:
+            await self.reply_http_success(
+                request_id, response.status_code, response.content
             )
-            if response.is_success:
-                await self.reply_http_success(
-                    request_id, response.status_code, response.content
-                )
-            else:
-                await self.reply_http_fail(request_id)
+        else:
+            await self.reply_http_fail(request_id)
 
     async def reply_http_success(self, request_id: int, status: int, content: bytes):
         buf = bytes(

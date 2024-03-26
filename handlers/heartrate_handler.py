@@ -23,11 +23,10 @@ class HeartRateStatus(int, Enum):
 
 class HeartRateClient(BaseHandler):
     endpoint = ChunkedEndpoint.HEARTRATE
+    encrypted = False
 
     async def __call__(self, payload: bytes):
         cmd = HeartRateCmd(payload[0])
-
-        self.logger.info(cmd, payload[1:])
 
         if cmd == HeartRateCmd.REALTIME_ACK:
             status = HeartRateStatus(payload[1])
