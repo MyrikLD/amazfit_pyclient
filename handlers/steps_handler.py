@@ -16,13 +16,15 @@ class StepsCmd(int, Enum):
 
 class StepsClient(BaseHandler):
     endpoint = ChunkedEndpoint.STEPS
+    encrypted = False
 
     async def __call__(self, payload: bytes):
         cmd = StepsCmd(payload[0])
+        payload = payload[1:]
 
         if cmd == StepsCmd.REPLY:
-            steps = int.from_bytes(payload[1:], "little")
-            self.logger.info(f"Steps: {steps}")
+            _, _, steps, meters, calories = struct.unpack("<BB3I", payload)
+            self.logger.info(f"steps: {steps}, meters: {meters}, calories: {calories}")
         elif cmd == StepsCmd.ENABLE_REALTIME_ACK:
             logging.info(
                 "Band acknowledged realtime steps, status = %i, enabled = %i",

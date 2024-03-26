@@ -13,6 +13,7 @@ class ConnectionCmd(int, Enum):
 
 class ConnectionClient(BaseHandler):
     endpoint = ChunkedEndpoint.CONNECT
+    encrypted = False
 
     async def __call__(self, payload: bytes):
         cmd = ConnectionCmd(payload[0])
