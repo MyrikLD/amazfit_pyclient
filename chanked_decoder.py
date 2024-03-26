@@ -4,7 +4,7 @@ from typing import Awaitable, Callable, Optional, TYPE_CHECKING
 
 from bleak import BleakClient, BleakGATTCharacteristic
 
-from aes import decrypt_aes
+import aes
 from chunked_endpoint import ChunkedEndpoint, HeaderFlags
 
 if TYPE_CHECKING:
@@ -109,12 +109,16 @@ class ChunkedDecoder:
                 )
 
                 try:
-                    buf = decrypt_aes(self.reassembly_buffer, message_key)
+                    buf = aes.decrypt_aes(self.reassembly_buffer, message_key)
                 except Exception as e:
                     self.logger.warning("error decrypting: %s", e)
                     self.current_handle = None
                     self.current_type = 0
                     return False, 0
+
+                # todo: decode head
+                head = buf[self.current_length :]
+                buf = buf[: self.current_length]
             else:
                 buf = self.reassembly_buffer
 
@@ -145,8 +149,6 @@ class ChunkedDecoder:
                     await self.callbacks[self.current_type](buf)
                 except Exception as e:
                     self.logger.exception("Failed to handle payload: %s", e)
-
-
 
             self.current_type = 0
             self.current_handle = None

@@ -27,7 +27,6 @@ def list_to_dict(lst):
 class HttpClient(BaseHandler):
     endpoint = ChunkedEndpoint.HTTP
 
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.weather = WeatherServer()
@@ -77,15 +76,14 @@ class HttpClient(BaseHandler):
         await self.write(buf + content)
 
     async def reply_http_fail(self, request_id: int):
-        buf = (
-            bytes(
-                [
-                    CMDType.RESPONSE,
-                    request_id,
-                    ResponseCode.NO_INTERNET,
-                ]
-            )
-            + int(0).to_bytes(4, "little")
-        )
+        buf = bytes(
+            [
+                CMDType.RESPONSE,
+                request_id,
+                ResponseCode.NO_INTERNET,
+            ]
+        ) + int(
+            0
+        ).to_bytes(4, "little")
 
         await self.write(buf)

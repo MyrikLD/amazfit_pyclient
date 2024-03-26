@@ -22,6 +22,7 @@ async def main(address: str, key: str):
     async with BleakClient(
         address,
         disconnected_callback=lambda x: print("Disconnected!"),
+        timeout=30,
     ) as client:
         decoder = ChunkedDecoder(client)
         encoder = ChunkedEncoder(client)

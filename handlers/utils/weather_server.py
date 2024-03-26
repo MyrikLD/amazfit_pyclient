@@ -52,26 +52,12 @@ class FakeResponse:
     def json(cls, data: dict):
         return cls(
             status_code=200,
-            content=json.dumps(data).encode("utf-8"),
+            content=json.dumps(data, ensure_ascii=False).encode("utf-8"),
         )
 
     @property
     def is_success(self):
         return 100 < self.status_code < 300
-
-
-"""
-private static class AqiModel {
-        public String aqi; // int
-        public String co; // float
-        public String no2; // float
-        public String o3; // float
-        public String pm10; // int
-        public String pm25; // int
-        public Date pubTime; // 2023-05-14T12:00:00-0400
-        public String so2; // float
-
-"""
 
 
 class WeatherServer:
@@ -123,25 +109,25 @@ class WeatherServer:
         current_weather_model = {
             "humidity": {"unit": "%", "value": "33"},
             "pressure": {"unit": "mb", "value": "1000"},
-            "pubTime": "2024-03-23T11:33:00+0100",
-            "temperature": {"unit": "℃", "value": "5"},
+            "pubTime": "2024-03-26T00:33:00+0100",
+            "temperature": {"unit": "℃", "value": "3"},
             "uvIndex": "1",
             "visibility": {"unit": "km", "value": ""},
             "weather": "1",
             "wind": {
-                "direction": {"unit": "°", "value": "35"},
-                "speed": {"unit": "km/h", "value": "33"}
+                "direction": {"unit": "°", "value": "33"},
+                "speed": {"unit": "km/h", "value": "33"},
             },
         }
         aqi_model = {
             "aqi": "31",
             "co": "1.6",
             "no2": "10.4",
-            "o3": "22.6",
+            "o3": "33.3",
             "pm10": "13",
             "pm25": "31",
-            "pubTime": "2024-03-23T11:00:00+0100",
-            "so2": "3.4",
+            "pubTime": "2024-03-26T00:00:00+0100",
+            "so2": "3.3",
         }
 
         return FakeResponse.json(

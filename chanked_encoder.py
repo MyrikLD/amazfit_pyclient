@@ -4,7 +4,7 @@ from typing import Optional
 
 from bleak import BleakClient
 
-from aes import encrypt_aes
+import aes
 from chunked_endpoint import HeaderFlags
 
 
@@ -29,7 +29,7 @@ class ChunkedEncoder:
         self.logger = logging.getLogger(self.__class__.__qualname__)
 
     def set_encryption_parameters(
-        self, encrypted_sequence_number: int, final_shared_session_aes
+        self, encrypted_sequence_number: int, final_shared_session_aes: bytes
     ):
         self.shared_session_key = final_shared_session_aes
         self.encrypted_sequence_nr = encrypted_sequence_number
@@ -48,7 +48,7 @@ class ChunkedEncoder:
         checksum = zlib.crc32(encryptable_payload)
         encryptable_payload += checksum.to_bytes(4, "little")
 
-        payload = encrypt_aes(
+        payload = aes.encrypt_aes(
             encryptable_payload + b"\0" * (encrypted_length - len(encryptable_payload)),
             messagekey,
         )
