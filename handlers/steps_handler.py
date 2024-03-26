@@ -1,12 +1,10 @@
-import logging
 import struct
-from enum import Enum
 
-from chunked_endpoint import ChunkedEndpoint
+from chunked_endpoint import ChunkedEndpoint, IntEnum
 from .base_handler import BaseHandler
 
 
-class StepsCmd(int, Enum):
+class StepsCmd(IntEnum):
     GET = 0x03
     REPLY = 0x04
     ENABLE_REALTIME = 0x05
@@ -18,22 +16,6 @@ class StepsClient(BaseHandler):
     endpoint = ChunkedEndpoint.STEPS
     encrypted = False
 
-    async def __call__(self, payload: bytes):
-        cmd = StepsCmd(payload[0])
-        payload = payload[1:]
-
-        if cmd == StepsCmd.REPLY:
-            _, _, steps, meters, calories = struct.unpack("<BB3I", payload)
-            self.logger.info(f"steps: {steps}, meters: {meters}, calories: {calories}")
-        elif cmd == StepsCmd.ENABLE_REALTIME_ACK:
-            logging.info(
-                "Band acknowledged realtime steps, status = %i, enabled = %i",
-                payload[1],
-                payload[2],
-            )
-        elif cmd == StepsCmd.REALTIME_NOTIFICATION:
-            self.handle_realtime_steps(payload[1:])
-
     async def start(self):
         await self.write(
             bytes([StepsCmd.ENABLE_REALTIME]),
@@ -42,6 +24,23 @@ class StepsClient(BaseHandler):
     async def get_steps(self):
         await self.write(StepsCmd.GET.to_bytes(1, "little"))
 
-    def handle_realtime_steps(self, payload: bytes):
-        data = struct.unpack("<Biii", payload)
-        self.logger.info(f"Realtime steps: {data}")
+
+@StepsClient.handler(StepsCmd.REPLY)
+async def reply_handler(self: StepsClient, payload: bytes):
+    _, _, steps, meters, calories = struct.unpack("<BB3I", payload)
+    self.logger.info(f"steps: {steps}, meters: {meters}, calories: {calories}")
+
+
+@StepsClient.handler(StepsCmd.ENABLE_REALTIME_ACK)
+async def enable_realtime_ack_handler(self: StepsClient, payload: bytes):
+    self.logger.info(
+        "Band acknowledged realtime steps, status = %i, enabled = %i",
+        payload[1],
+        payload[2],
+    )
+
+
+@StepsClient.handler(StepsCmd.REALTIME_NOTIFICATION)
+async def realtime_notification_handler(self: StepsClient, payload: bytes):
+    data = struct.unpack("<Biii", payload)
+    self.logger.info(f"Realtime steps: {data}")

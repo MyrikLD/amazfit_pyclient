@@ -1,13 +1,12 @@
 import asyncio
 import struct
-from enum import Enum
 
 from cryptography.hazmat.primitives.asymmetric import ec
 
 from aes import encrypt_aes
 from chanked_decoder import ChunkedDecoder
 from chanked_encoder import ChunkedEncoder
-from chunked_endpoint import ChunkedEndpoint
+from chunked_endpoint import ChunkedEndpoint, IntEnum
 from .base_handler import BaseHandler
 
 SUCCESS = 0x01
@@ -21,14 +20,16 @@ privateEC = ec.generate_private_key(curve)
 publicEC = privateEC.public_key()
 
 
-class ChunkedEndpointAuth(int, Enum):
-    REQUEST = 0x0
+class AuthCmd(IntEnum):
     RESPONSE = 0x10
+
+
+class ChunkedEndpointAuth(IntEnum):
     STAGE_1 = 0x04
     STAGE_2 = 0x05
 
 
-class EncryptionHandler(BaseHandler):
+class AuthHandler(BaseHandler):
     endpoint = ChunkedEndpoint.AUTH
     ready = asyncio.Event()
 
@@ -58,44 +59,6 @@ class EncryptionHandler(BaseHandler):
             encrypt=False,
         )
 
-    async def __call__(self, payload: bytes):
-        assert payload[0] == ChunkedEndpointAuth.RESPONSE
-
-        if payload[1] == ChunkedEndpointAuth.STAGE_1 and payload[2] == SUCCESS:
-            self.logger.info("Got remote random + public key")
-            remote_random = payload[3:19]
-            _remote_public_ec = payload[19:67]
-
-            remote_public_ec = ec.EllipticCurvePublicNumbers(
-                int.from_bytes(_remote_public_ec[0:24], byteorder="little"),
-                int.from_bytes(_remote_public_ec[24:48], byteorder="little"),
-                curve,
-            ).public_key()
-            shared_ec = int.from_bytes(
-                privateEC.exchange(exchange_algorithm, remote_public_ec)
-            ).to_bytes(24, "little")
-            encrypted_sequence_number = int.from_bytes(shared_ec[:4], "big")
-
-            final_shared_session_aes = bytes(
-                shared_ec[i + 8] ^ self.priv_key[i] for i in range(16)
-            )
-
-            self.logger.info(f"Shared Session AES: {final_shared_session_aes.hex()}")
-
-            self.encoder.set_encryption_parameters(
-                encrypted_sequence_number, final_shared_session_aes
-            )
-            self.decoder.set_encryption_parameters(final_shared_session_aes)
-
-            await self.send_response(
-                remote_random, self.priv_key, final_shared_session_aes
-            )
-        elif payload[1] == ChunkedEndpointAuth.STAGE_1 and payload[2] == 0x28:
-            self.logger.error("AUTH FAILED")
-        elif payload[1] == ChunkedEndpointAuth.STAGE_2 and payload[2] == SUCCESS:
-            self.logger.info("Auth Success")
-            self.ready.set()
-
     async def autenticate(self):
         await self.encoder.write(
             self.endpoint,
@@ -113,3 +76,56 @@ class EncryptionHandler(BaseHandler):
         )
         self.logger.info("Waiting for auth")
         await self.ready.wait()
+
+
+@AuthHandler.handler(AuthCmd.RESPONSE)
+async def response_handler(self: AuthHandler, payload: bytes):
+    stage = ChunkedEndpointAuth(payload[0])
+    stages = {
+        ChunkedEndpointAuth.STAGE_1: stage_1_handler,
+        ChunkedEndpointAuth.STAGE_2: stage_2_handler,
+    }
+    await stages[stage](self, payload[1:])
+
+
+async def stage_1_handler(self: AuthHandler, payload: bytes):
+    status = payload[0]
+
+    assert status == 1
+
+    payload = payload[1:]
+
+    self.logger.info("Got remote random + public key")
+    remote_random = payload[:16]
+    _remote_public_ec = payload[16:64]
+
+    remote_public_ec = ec.EllipticCurvePublicNumbers(
+        int.from_bytes(_remote_public_ec[0:24], byteorder="little"),
+        int.from_bytes(_remote_public_ec[24:48], byteorder="little"),
+        curve,
+    ).public_key()
+    shared_ec = int.from_bytes(
+        privateEC.exchange(exchange_algorithm, remote_public_ec)
+    ).to_bytes(24, "little")
+    encrypted_sequence_number = int.from_bytes(shared_ec[:4], "big")
+
+    final_shared_session_aes = bytes(
+        shared_ec[i + 8] ^ self.priv_key[i] for i in range(16)
+    )
+
+    self.logger.info(f"Shared Session AES: {final_shared_session_aes.hex()}")
+
+    self.encoder.set_encryption_parameters(
+        encrypted_sequence_number, final_shared_session_aes
+    )
+    self.decoder.set_encryption_parameters(final_shared_session_aes)
+
+    await self.send_response(remote_random, self.priv_key, final_shared_session_aes)
+
+
+async def stage_2_handler(self: AuthHandler, payload: bytes):
+    if payload[0] == SUCCESS:
+        self.logger.info("Auth Success")
+        self.ready.set()
+    else:
+        self.logger.error("AUTH FAILED")

@@ -1,18 +1,14 @@
-from enum import Enum
-
-import httpx
-
-from chunked_endpoint import ChunkedEndpoint
+from chunked_endpoint import ChunkedEndpoint, IntEnum
 from .base_handler import BaseHandler
 from .utils.weather_server import WeatherServer
 
 
-class CMDType(int, Enum):
+class CMDType(IntEnum):
     REQUEST = 0x01
     RESPONSE = 0x02
 
 
-class ResponseCode(int, Enum):
+class ResponseCode(IntEnum):
     SUCCESS = 0x01
     NO_INTERNET = 0x02
 
@@ -26,31 +22,11 @@ def list_to_dict(lst):
 
 class HttpClient(BaseHandler):
     endpoint = ChunkedEndpoint.HTTP
+    encrypted = True
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.weather = WeatherServer()
-
-    async def __call__(self, payload: bytes):
-        t, request_id = payload[0], payload[1]
-
-        assert t == CMDType.REQUEST
-
-        data = payload[2:]
-
-        head, metadata = data.split(b"\0\0\0\0", 1)
-
-        _method, _url, headers_data = head.split(b"\0", 2)
-        len_headers = int(headers_data[0])
-
-        method = _method.decode("utf-8")
-        url = _url.decode("utf-8")
-
-        headers = list_to_dict(headers_data[1:].split(b"\0"))
-
-        assert len_headers == len(headers)
-
-        await self.request(request_id, method, url, headers)
 
     async def request(
         self, request_id: int, method: str, url: str, headers: dict = None
@@ -90,3 +66,23 @@ class HttpClient(BaseHandler):
         ).to_bytes(4, "little")
 
         await self.write(buf)
+
+
+@HttpClient.handler(CMDType.REQUEST)
+async def request_handler(self: HttpClient, payload: bytes):
+    request_id = payload[1]
+    data = payload[1:]
+
+    head, metadata = data.split(b"\0\0\0\0", 1)
+
+    _method, _url, headers_data = head.split(b"\0", 2)
+    len_headers = int(headers_data[0])
+
+    method = _method.decode("utf-8")
+    url = _url.decode("utf-8")
+
+    headers = list_to_dict(headers_data[1:].split(b"\0"))
+
+    assert len_headers == len(headers)
+
+    await self.request(request_id, method, url, headers)

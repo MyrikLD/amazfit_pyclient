@@ -1,22 +1,20 @@
-from enum import Enum
-
-from chunked_endpoint import ChunkedEndpoint
+from chunked_endpoint import ChunkedEndpoint, IntEnum
 from .base_handler import BaseHandler
 
 
-class HeartRateRealtimeMode(int, Enum):
-    STOP = 0x00
-    START = 0x01
-    CONTINUE = 0x02
-
-
-class HeartRateCmd(int, Enum):
+class HeartRateCmd(IntEnum):
     REALTIME_SET = 0x04
     REALTIME_ACK = 0x05
     SLEEP = 0x06
 
 
-class HeartRateStatus(int, Enum):
+class HeartRateRealtimeMode(IntEnum):
+    STOP = 0x00
+    START = 0x01
+    CONTINUE = 0x02
+
+
+class SleepStatus(IntEnum):
     FALL_ASLEEP = 0x01
     WAKE_UP = 0x00
 
@@ -27,12 +25,15 @@ class HeartRateClient(BaseHandler):
 
     async def __call__(self, payload: bytes):
         cmd = HeartRateCmd(payload[0])
+        payload = payload[1:]
 
         if cmd == HeartRateCmd.REALTIME_ACK:
-            status = HeartRateStatus(payload[1])
-            if status == HeartRateStatus.WAKE_UP:
+            self.logger.info("Band acknowledged realtime heart rate: ", payload[1])
+        elif cmd == HeartRateCmd.SLEEP:
+            status = SleepStatus(payload[1])
+            if status == SleepStatus.WAKE_UP:
                 self.logger.info("Woke up")
-            elif status == HeartRateStatus.FALL_ASLEEP:
+            elif status == SleepStatus.FALL_ASLEEP:
                 self.logger.info("Fall asleep")
 
     async def start(self):
@@ -45,7 +46,16 @@ class HeartRateClient(BaseHandler):
             bytes([HeartRateCmd.REALTIME_SET, HeartRateRealtimeMode.STOP]),
         )
 
-    async def sleep(self):
-        await self.write(
-            bytes([HeartRateCmd.SLEEP]),
-        )
+
+@HeartRateClient.handler(HeartRateCmd.REALTIME_ACK)
+async def realtime_ack_handler(self: HeartRateClient, payload: bytes):
+    self.logger.info("Band acknowledged realtime heart rate: ", payload[1])
+
+
+@HeartRateClient.handler(HeartRateCmd.SLEEP)
+async def sleep_handler(self: HeartRateClient, payload: bytes):
+    status = SleepStatus(payload[1])
+    if status == SleepStatus.WAKE_UP:
+        self.logger.info("Woke up")
+    elif status == SleepStatus.FALL_ASLEEP:
+        self.logger.info("Fall asleep")

@@ -8,7 +8,7 @@ from bleak import BleakClient
 
 from chanked_decoder import ChunkedDecoder
 from chanked_encoder import ChunkedEncoder
-from handlers.auth_handler import EncryptionHandler
+from handlers.auth_handler import AuthHandler
 from handlers.connection_handler import ConnectionClient
 from handlers.heartrate_handler import HeartRateClient
 from handlers.http_handler import HttpClient
@@ -16,6 +16,13 @@ from handlers.logs_handler import LogsClient
 from handlers.steps_handler import StepsClient
 
 CHARACTERISTIC_HR = UUID("00002a37-0000-1000-8000-00805f9b34fb")
+
+
+def print_chars(client: BleakClient):
+    for service in client.services:
+        print(f"{service.uuid}: {service.description}")
+        for char in service.characteristics:
+            print(f"\t{char.uuid}: {char.description}")
 
 
 async def main(address: str, key: str):
@@ -27,7 +34,7 @@ async def main(address: str, key: str):
         decoder = ChunkedDecoder(client)
         encoder = ChunkedEncoder(client)
 
-        eh = EncryptionHandler(key, encoder, decoder)
+        eh = AuthHandler(key, encoder, decoder)
         decoder.add_handler(eh)
 
         http = HttpClient(encoder, decoder)
@@ -48,14 +55,14 @@ async def main(address: str, key: str):
         await decoder.start_notify()
         await eh.autenticate()
 
-        for service in client.services:
-            print(f"{service.uuid}: {service.description}")
-            for char in service.characteristics:
-                print(f"\t{char.uuid}: {char.description}")
+        await steps.get_steps()
+        await conn.get_mtu()
+
+        # print_chars(client)
 
         await notify_hr(client)
 
-        print("sleep")
+        print("while 1")
         while 1:
             await sleep(1)
 
