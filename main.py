@@ -16,6 +16,8 @@ from handlers.logs_handler import LogsClient
 from handlers.steps_handler import StepsClient
 
 CHARACTERISTIC_HR = UUID("00002a37-0000-1000-8000-00805f9b34fb")
+CHARACTERISTIC_ACTIVITY_DATA = UUID("00000005-0000-3512-2118-0009af100700")
+CHARACTERISTIC4 = UUID("00000004-0000-3512-2118-0009af100700")
 
 
 def print_chars(client: BleakClient):
@@ -26,9 +28,10 @@ def print_chars(client: BleakClient):
 
 
 async def main(address: str, key: str):
+    disconnect_event = asyncio.Event()
     async with BleakClient(
         address,
-        disconnected_callback=lambda x: print("Disconnected!"),
+        disconnected_callback=lambda x: disconnect_event.set(),
         timeout=30,
     ) as client:
         decoder = ChunkedDecoder(client)
@@ -62,9 +65,19 @@ async def main(address: str, key: str):
 
         await notify_hr(client)
 
-        print("while 1")
-        while 1:
-            await sleep(1)
+        await subscribe(client, CHARACTERISTIC4)
+        await subscribe(client, CHARACTERISTIC_ACTIVITY_DATA)
+        await client.write_gatt_char(CHARACTERISTIC4, b"\x01\x00")
+
+        await disconnect_event.wait()
+        print("Disconnected")
+
+
+async def subscribe(client: BleakClient, char: UUID):
+    await client.start_notify(
+        char,
+        lambda char, data: print(f"{char} -> {data}"),
+    )
 
 
 async def notify_hr(client):

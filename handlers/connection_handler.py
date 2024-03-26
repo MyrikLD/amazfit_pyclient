@@ -20,7 +20,7 @@ class ConnectionClient(BaseHandler):
         await self.write(ConnectionCmd.MTU_REQUEST.to_bytes(1, "little"))
 
 
-@ConnectionClient.handler(ConnectionCmd.PING_RESPONSE)
+@ConnectionClient.handler(ConnectionCmd.PING_REQUEST)
 async def ping_response_handler(self: ConnectionClient, payload: bytes):
     await self.write(ConnectionCmd.PING_RESPONSE.to_bytes(1, "little"))
 
