@@ -18,6 +18,7 @@ class BaseHandler(Protocol):
     ):
         self.encoder = encoder
         self.decoder = decoder
+        decoder.add_handler(self)
         self.logger = logging.getLogger(self.__class__.__qualname__)
 
     async def __call__(self, payload: bytes):

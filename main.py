@@ -9,6 +9,7 @@ from bleak import BleakClient
 from chanked_decoder import ChunkedDecoder
 from chanked_encoder import ChunkedEncoder
 from handlers.auth_handler import AuthHandler
+from handlers.battery_handler import BatteryClient
 from handlers.connection_handler import ConnectionClient
 from handlers.heartrate_handler import HeartRateClient
 from handlers.http_handler import HttpClient
@@ -38,22 +39,12 @@ async def main(address: str, key: str):
         encoder = ChunkedEncoder(client)
 
         eh = AuthHandler(key, encoder, decoder)
-        decoder.add_handler(eh)
-
         http = HttpClient(encoder, decoder)
-        decoder.add_handler(http)
-
         hr = HeartRateClient(encoder, decoder)
-        decoder.add_handler(hr)
-
         steps = StepsClient(encoder, decoder)
-        decoder.add_handler(steps)
-
         conn = ConnectionClient(encoder, decoder)
-        decoder.add_handler(conn)
-
         logs = LogsClient(encoder, decoder)
-        decoder.add_handler(logs)
+        battery = BatteryClient(encoder, decoder)
 
         await decoder.start_notify()
         await eh.autenticate()
