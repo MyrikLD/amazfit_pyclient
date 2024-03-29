@@ -56,9 +56,12 @@ async def main(address: str, key: str):
 
         await notify_hr(client)
 
-        await FetchActivity(client).start(
+        fa = FetchActivity(client)
+        await fa.start(
             since=datetime.now().astimezone() - timedelta(days=1),
         )
+        await fa.on_completed()
+        await client.disconnect()
 
         await disconnect_event.wait()
         print("Disconnected")

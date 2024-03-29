@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from enum import Enum
 from io import BytesIO
@@ -52,6 +53,8 @@ class DataFetch:
 
     def __init__(self, client: BleakClient):
         self.client = client
+        self.on_completed = asyncio.Event()
+        self.in_progress = asyncio.Lock()
         self.log = getLogger(__name__)
 
     async def handle_activity_data(
@@ -99,21 +102,20 @@ class DataFetch:
         assert status == 0x01, f"Failed to fetch data: {hex(status)}: {data}"
         print(f"{data}")
         self.buffer.seek(0)
+        self.on_completed.set()
+        self.in_progress.release()
 
-        await self.on_transaction_complete(
-            self.fetch_type, self.start_timestamp, self.buffer
-        )
+        await self.on_transaction_complete()
 
         await self.data_ack(True)
 
-    @staticmethod
-    async def on_transaction_complete(
-        fetch_type: FetchType, start_timestamp: datetime, buffer: BytesIO
-    ):
-        path = Path(f"{fetch_type.name.lower()}.{start_timestamp.isoformat()}.bin")
+    async def on_transaction_complete(self):
+        path = Path(
+            f"{self.fetch_type.name.lower()}.{self.start_timestamp.isoformat()}.bin"
+        )
 
         with open(path, "wb") as f:
-            f.write(buffer.getvalue())
+            f.write(self.buffer.getvalue())
         print(f"Saved to {path}")
 
     async def data_ack(self, keep_data_on_device: bool):
@@ -128,6 +130,8 @@ class DataFetch:
         self.counter = 0
         self.global_counter = 0
         self.fetch_type = fetch_type
+        self.on_completed.clear()
+        await self.in_progress.acquire()
 
         await self.client.start_notify(
             self.CHARACTERISTIC_ACTIVITY_METADATA,
@@ -144,13 +148,3 @@ class DataFetch:
             bytes([DataCMD.ACTIVITY_DATA_START_DATE, fetch_type])
             + get_time_bytes(since, TimeUnit.MINUTES),
         )
-
-
-async def start_fetching_data(
-    client: BleakClient,
-    fetch_type: FetchType,
-    since: datetime,
-):
-    fetcher = DataFetch(client)
-    await fetcher.start(fetch_type, since)
-    return fetcher
