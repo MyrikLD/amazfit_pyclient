@@ -4,7 +4,7 @@ from typing import Awaitable, Callable, Optional, TYPE_CHECKING
 
 from bleak import BleakClient, BleakGATTCharacteristic
 
-import aes
+from .aes import decrypt_aes
 from .chunked_endpoint import ChunkedEndpoint, HeaderFlags
 
 if TYPE_CHECKING:
@@ -109,7 +109,7 @@ class ChunkedDecoder:
                 )
 
                 try:
-                    buf = aes.decrypt_aes(self.reassembly_buffer, message_key)
+                    buf = decrypt_aes(self.reassembly_buffer, message_key)
                 except Exception as e:
                     self.logger.warning("error decrypting: %s", e)
                     self.current_handle = None

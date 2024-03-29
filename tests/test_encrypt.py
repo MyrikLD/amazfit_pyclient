@@ -1,6 +1,5 @@
 from unittest.mock import Mock, patch
 
-import aes
 from chunked_encoder import ChunkedEncoder
 
 
@@ -11,7 +10,7 @@ def test_encrypt():
         encrypted_sequence_number=0xF5C7CB0A - 1,
         final_shared_session_aes=b"\x14\xcd\x905\xd6\xb9U;\xe8$\x8f\x85\x0f!j\xa5",
     )
-    with patch.object(aes, "encrypt_aes") as mock:
+    with patch("chunked_encoder.chunked_encoder.encrypt_aes") as mock:
         a.encrypt(
             b'\x02B\x01\x94>\x00\x00\x00{"errorCode":-2001,"httpStatusCode":404,"message":"Not found"}',
         )

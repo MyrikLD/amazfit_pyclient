@@ -4,7 +4,7 @@ from typing import Optional
 
 from bleak import BleakClient
 
-import aes
+from .aes import encrypt_aes
 from .chunked_endpoint import HeaderFlags
 
 
@@ -43,7 +43,7 @@ class ChunkedEncoder:
         checksum = zlib.crc32(encryptable_payload)
         encryptable_payload += checksum.to_bytes(4, "little")
 
-        payload = aes.encrypt_aes(
+        payload = encrypt_aes(
             encryptable_payload + b"\0" * (encrypted_length - len(encryptable_payload)),
             messagekey,
         )
