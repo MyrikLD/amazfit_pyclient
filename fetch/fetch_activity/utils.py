@@ -20,7 +20,7 @@ class Sample:
 
 def parse_samples(f: BinaryIO) -> Iterator[Sample]:
     while data := f.read(8):
-        sample = Sample(*struct.unpack("3Bb4B", data))
+        sample = Sample(*struct.unpack("8B", data))
         yield sample
 
 

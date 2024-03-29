@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
 class ChunkedDecoder:
     current_handle: Optional[int] = None
-    current_length = 0
     current_type = 0
     full_length = 0
     last_count = 0
@@ -72,7 +71,6 @@ class ChunkedDecoder:
         if flags.first_chunk:
             self.full_length = int.from_bytes(data[:4], "little")
             data = data[4:]
-            self.current_length = self.full_length
             if flags.encrypted:
                 encrypted_length = self.full_length + 8
                 overflow = encrypted_length % 16
@@ -86,12 +84,7 @@ class ChunkedDecoder:
             data = data[2:]
             self.current_handle = handle
 
-        if not flags.encrypted:
-            assert self.current_length == len(data)
-
-            self.reassembly_buffer += data[: self.current_length]
-        else:
-            self.reassembly_buffer += data
+        self.reassembly_buffer += data
 
         if flags.last_chunk:
             assert len(self.reassembly_buffer) == self.full_length
@@ -117,8 +110,8 @@ class ChunkedDecoder:
                     return False, 0
 
                 # todo: decode head
-                head = buf[self.current_length :]
-                buf = buf[: self.current_length]
+                head = buf[self.full_length :]
+                buf = buf[: self.full_length]
             else:
                 buf = self.reassembly_buffer
 

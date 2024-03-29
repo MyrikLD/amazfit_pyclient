@@ -50,10 +50,10 @@ class DataFetch:
     expected_data_length: int
     start_timestamp: datetime
     fetch_type: FetchType
+    in_progress: asyncio.Lock
 
     def __init__(self, client: BleakClient):
         self.client = client
-        self.on_completed = asyncio.Event()
         self.in_progress = asyncio.Lock()
         self.log = getLogger(__name__)
 
@@ -80,10 +80,14 @@ class DataFetch:
         assert data[0] == 0x10, f"Failed to start date: {hex(data[0])}"
         cmd = ActivityDataCMD(data[1])
         data = bytes(data[2:])
-        if cmd == ActivityDataCMD.START_DATE:
-            await self.handle_start_date_response(data)
-        elif cmd == ActivityDataCMD.FETCH_DATA:
-            await self.handle_fetch_data_response(data)
+        try:
+            if cmd == ActivityDataCMD.START_DATE:
+                await self.handle_start_date_response(data)
+            elif cmd == ActivityDataCMD.FETCH_DATA:
+                await self.handle_fetch_data_response(data)
+        except Exception as e:
+            self.in_progress.release()
+            raise
 
     async def handle_start_date_response(self, data: bytes):
         assert data[0] == 0x01, f"Failed to start date: {hex(data[0])}"
@@ -102,7 +106,6 @@ class DataFetch:
         assert status == 0x01, f"Failed to fetch data: {hex(status)}: {data}"
         print(f"{data}")
         self.buffer.seek(0)
-        self.on_completed.set()
         self.in_progress.release()
 
         await self.on_transaction_complete()
@@ -130,7 +133,6 @@ class DataFetch:
         self.counter = 0
         self.global_counter = 0
         self.fetch_type = fetch_type
-        self.on_completed.clear()
         await self.in_progress.acquire()
 
         await self.client.start_notify(

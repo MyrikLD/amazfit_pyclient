@@ -32,7 +32,6 @@ class ChunkedEndpointAuth(int, Enum):
 
 class AuthHandler(BaseHandler):
     endpoint = ChunkedEndpoint.AUTH
-    ready = asyncio.Event()
 
     def __init__(
         self,
@@ -44,6 +43,7 @@ class AuthHandler(BaseHandler):
         if key.startswith("0x"):
             key = key[2:]
         self.priv_key = bytes.fromhex(key)
+        self.ready = asyncio.Event()
 
     async def send_response(self, remote_random, secret_key, final_shared_session_aes):
         encrypted_random1 = encrypt_aes(remote_random, secret_key)
