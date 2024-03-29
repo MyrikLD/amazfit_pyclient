@@ -6,7 +6,8 @@ Tested on Amazfit GTR4
 
 - [x] Auth
 - [x] Decode chunked message
-- [ ] Encode chunked message
+- [x] Encode chunked message
+- [x] Fetch activity data
 
 # How to
 
