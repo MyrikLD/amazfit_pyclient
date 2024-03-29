@@ -1,6 +1,5 @@
 import json
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
 
 from yarl import URL
@@ -92,7 +91,7 @@ class WeatherServer:
                     "visibility": {"unit": "km", "value": "0"},
                     "weather": "1",
                     "wind": {
-                        "direction": {"unit": "°", "value": "33"},
+                        "direction": {"unit": "°", "value": "133"},
                         "speed": {"unit": "km/h", "value": "33"},
                     },
                 },

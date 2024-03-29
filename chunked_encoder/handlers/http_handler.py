@@ -1,8 +1,8 @@
 from enum import Enum
 
-from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
-from .utils.weather_server import WeatherServer
+from .utils import WeatherServer
+from ..chunked_endpoint import ChunkedEndpoint
 
 
 class CMDType(int, Enum):

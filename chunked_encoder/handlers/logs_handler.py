@@ -1,7 +1,7 @@
 from enum import Enum
 
-from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
+from ..chunked_endpoint import ChunkedEndpoint
 
 
 class CMDType(int, Enum):

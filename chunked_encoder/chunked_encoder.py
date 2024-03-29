@@ -5,7 +5,7 @@ from typing import Optional
 from bleak import BleakClient
 
 import aes
-from chunked_endpoint import HeaderFlags
+from .chunked_endpoint import HeaderFlags
 
 
 class ChunkedEncoder:
@@ -17,9 +17,9 @@ class ChunkedEncoder:
     def __init__(self, client: BleakClient):
         self.client = client
 
-        service = client.services.get_service("0000fee0-0000-1000-8000-00805f9b34fb")
-
-        self.char = service.get_characteristic("00000016-0000-3512-2118-0009af100700")
+        self.char = client.services.get_characteristic(
+            "00000016-0000-3512-2118-0009af100700"
+        )
 
         self.logger = logging.getLogger(self.__class__.__qualname__)
 

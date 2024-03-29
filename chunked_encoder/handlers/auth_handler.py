@@ -5,10 +5,10 @@ from enum import Enum
 from cryptography.hazmat.primitives.asymmetric import ec
 
 from aes import encrypt_aes
-from chanked_decoder import ChunkedDecoder
-from chanked_encoder import ChunkedEncoder
-from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
+from ..chunked_decoder import ChunkedDecoder
+from ..chunked_encoder import ChunkedEncoder
+from ..chunked_endpoint import ChunkedEndpoint
 
 SUCCESS = 0x01
 

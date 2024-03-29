@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch
 
 import aes
-from chanked_encoder import ChunkedEncoder
+from chunked_encoder import ChunkedEncoder
 
 
 def test_encrypt():

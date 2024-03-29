@@ -6,16 +6,17 @@ from uuid import UUID
 
 from bleak import BleakClient
 
-from chanked_decoder import ChunkedDecoder
-from chanked_encoder import ChunkedEncoder
+from chunked_encoder import ChunkedDecoder, ChunkedEncoder
+from chunked_encoder.handlers import (
+    AuthHandler,
+    BatteryClient,
+    ConnectionClient,
+    HeartRateClient,
+    HttpClient,
+    LogsClient,
+    StepsClient,
+)
 from fetch.fetch_activity.data_fetcher import FetchActivity
-from handlers.auth_handler import AuthHandler
-from handlers.battery_handler import BatteryClient
-from handlers.connection_handler import ConnectionClient
-from handlers.heartrate_handler import HeartRateClient
-from handlers.http_handler import HttpClient
-from handlers.logs_handler import LogsClient
-from handlers.steps_handler import StepsClient
 
 CHARACTERISTIC_HR = UUID("00002a37-0000-1000-8000-00805f9b34fb")
 

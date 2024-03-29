@@ -1,9 +1,4 @@
-from enum import Enum, Flag, IntFlag
-
-
-class IntEnum(int, Enum):
-    def __repr__(self):
-        return self.name
+from enum import Enum, IntFlag
 
 
 class HeaderFlags(IntFlag):

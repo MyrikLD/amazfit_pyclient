@@ -5,7 +5,7 @@ from typing import Awaitable, Callable, Optional, TYPE_CHECKING
 from bleak import BleakClient, BleakGATTCharacteristic
 
 import aes
-from chunked_endpoint import ChunkedEndpoint, HeaderFlags
+from .chunked_endpoint import ChunkedEndpoint, HeaderFlags
 
 if TYPE_CHECKING:
     from handlers.base_handler import BaseHandler
