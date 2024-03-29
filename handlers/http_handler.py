@@ -1,14 +1,16 @@
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from enum import Enum
+
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 from .utils.weather_server import WeatherServer
 
 
-class CMDType(IntEnum):
+class CMDType(int, Enum):
     REQUEST = 0x01
     RESPONSE = 0x02
 
 
-class ResponseCode(IntEnum):
+class ResponseCode(int, Enum):
     SUCCESS = 0x01
     NO_INTERNET = 0x02
 

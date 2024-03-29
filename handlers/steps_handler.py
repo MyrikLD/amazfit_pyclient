@@ -1,10 +1,11 @@
 import struct
+from enum import Enum
 
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 
 
-class StepsCmd(IntEnum):
+class StepsCmd(int, Enum):
     GET = 0x03
     REPLY = 0x04
     ENABLE_REALTIME = 0x05

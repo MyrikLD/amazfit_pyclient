@@ -1,8 +1,10 @@
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from enum import Enum
+
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 
 
-class ConnectionCmd(IntEnum):
+class ConnectionCmd(int, Enum):
     MTU_REQUEST = 0x01
     MTU_RESPONSE = 0x02
     PING_REQUEST = 0x03

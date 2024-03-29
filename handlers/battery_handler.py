@@ -1,15 +1,16 @@
+from enum import Enum
 from io import BytesIO
 
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from chunked_endpoint import ChunkedEndpoint
 from fetch.utils.timeutils import TimeUtils
 from .base_handler import BaseHandler
 
 
-class BatteryCmd(IntEnum):
+class BatteryCmd(int, Enum):
     GET_FULL_INFO = 0x04
 
 
-class BatteryStatus(IntEnum):
+class BatteryStatus(int, Enum):
     NORMAL = 0
     CHARGING = 1
 

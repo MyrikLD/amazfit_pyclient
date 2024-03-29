@@ -8,11 +8,6 @@ import aes
 from chunked_endpoint import HeaderFlags
 
 
-def arraycopy(src, src_pos, dest, dest_pos, length):
-    for i in range(length):
-        dest[i + dest_pos] = src[i + src_pos]
-
-
 class ChunkedEncoder:
     shared_session_key: Optional[bytes] = None
     write_handle = 0

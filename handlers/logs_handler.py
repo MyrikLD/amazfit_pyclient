@@ -1,8 +1,10 @@
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from enum import Enum
+
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 
 
-class CMDType(IntEnum):
+class CMDType(int, Enum):
     CAPABILITIES_REQUEST = 0x01
     CAPABILITIES_RESPONSE = 0x02
     LOGS_START = 0x03

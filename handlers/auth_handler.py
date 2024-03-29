@@ -1,12 +1,13 @@
 import asyncio
 import struct
+from enum import Enum
 
 from cryptography.hazmat.primitives.asymmetric import ec
 
 from aes import encrypt_aes
 from chanked_decoder import ChunkedDecoder
 from chanked_encoder import ChunkedEncoder
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 
 SUCCESS = 0x01
@@ -20,11 +21,11 @@ privateEC = ec.generate_private_key(curve)
 publicEC = privateEC.public_key()
 
 
-class AuthCmd(IntEnum):
+class AuthCmd(int, Enum):
     RESPONSE = 0x10
 
 
-class ChunkedEndpointAuth(IntEnum):
+class ChunkedEndpointAuth(int, Enum):
     STAGE_1 = 0x04
     STAGE_2 = 0x05
 

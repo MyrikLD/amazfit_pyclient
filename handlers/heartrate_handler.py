@@ -1,20 +1,22 @@
-from chunked_endpoint import ChunkedEndpoint, IntEnum
+from enum import Enum
+
+from chunked_endpoint import ChunkedEndpoint
 from .base_handler import BaseHandler
 
 
-class HeartRateCmd(IntEnum):
+class HeartRateCmd(int, Enum):
     REALTIME_SET = 0x04
     REALTIME_ACK = 0x05
     SLEEP = 0x06
 
 
-class HeartRateRealtimeMode(IntEnum):
+class HeartRateRealtimeMode(int, Enum):
     STOP = 0x00
     START = 0x01
     CONTINUE = 0x02
 
 
-class SleepStatus(IntEnum):
+class SleepStatus(int, Enum):
     FALL_ASLEEP = 0x01
     WAKE_UP = 0x00
 

@@ -67,7 +67,7 @@ class ChunkedEndpoint(int, Enum):
 # m68204id
 
 
-class ChunkedEndpointSleep(IntEnum):
+class ChunkedEndpointSleep(int, Enum):
     QueryVersion = 0x01
     VersionResult = 0x02
     QueryConfig = 0x03
