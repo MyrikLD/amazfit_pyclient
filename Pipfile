@@ -8,10 +8,10 @@ bleak = "*"
 httpx = "*"
 yarl = "*"
 cryptography = "*"
-pytest-asyncio = "*"
 
 [dev-packages]
 pytest = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.11"

@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
 
-from chunked_encoder import ChunkedEncoder
+from amazfit_pyclient.chunked_encoder import ChunkedEncoder
 
 
 def test_encrypt():

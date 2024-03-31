@@ -1,9 +1,9 @@
 from enum import Enum
 from io import BytesIO
 
-from fetch.utils.timeutils import TimeUtils
 from .base_handler import BaseHandler
 from ..chunked_endpoint import ChunkedEndpoint
+from amazfit_pyclient.fetch.utils import TimeUtils
 
 
 class BatteryCmd(int, Enum):

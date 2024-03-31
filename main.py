@@ -6,8 +6,8 @@ from uuid import UUID
 
 from bleak import BleakClient
 
-from chunked_encoder import ChunkedDecoder, ChunkedEncoder
-from chunked_encoder.handlers import (
+from amazfit_pyclient.chunked_encoder import ChunkedDecoder, ChunkedEncoder
+from amazfit_pyclient.chunked_encoder.handlers import (
     AuthHandler,
     BatteryClient,
     ConnectionClient,
@@ -16,7 +16,7 @@ from chunked_encoder.handlers import (
     LogsClient,
     StepsClient,
 )
-from fetch.fetch_activity.data_fetcher import FetchActivity
+from amazfit_pyclient.fetch import FetchActivity
 
 CHARACTERISTIC_HR = UUID("00002a37-0000-1000-8000-00805f9b34fb")
 
@@ -56,11 +56,16 @@ async def main(address: str, key: str):
 
         await notify_hr(client)
 
-        fa = FetchActivity(client)
-        await fa.start(
+        df = FetchActivity(client)
+        await df.start(
             since=datetime.now().astimezone() - timedelta(days=1),
         )
-        await fa.on_completed()
+        # df = FetchTemperature(client)
+        # await df.start(since=datetime.now().astimezone() - timedelta(days=1))
+
+        async with df.in_progress:
+            pass
+
         await client.disconnect()
 
         await disconnect_event.wait()

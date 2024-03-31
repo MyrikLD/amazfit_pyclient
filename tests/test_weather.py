@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from chunked_encoder import ChunkedEncoder
-from chunked_encoder.handlers import HttpClient
+from amazfit_pyclient.chunked_encoder import ChunkedEncoder
+from amazfit_pyclient.chunked_encoder.handlers import HttpClient
 
 
 @pytest.mark.asyncio

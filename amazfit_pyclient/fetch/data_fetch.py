@@ -1,13 +1,16 @@
 import asyncio
+from dataclasses import asdict, fields
 from datetime import datetime
 from enum import Enum
 from io import BytesIO
 from logging import getLogger
 from pathlib import Path
+from typing import Iterator, Type
 from uuid import UUID
 
 from bleak import BleakClient, BleakGATTCharacteristic
 
+from .utils.csv_helper import save_csv
 from .utils.timeutils import get_time_bytes, TimeUnit, TimeUtils
 
 
@@ -112,13 +115,19 @@ class DataFetch:
 
         await self.data_ack(True)
 
-    async def on_transaction_complete(self):
-        path = Path(
+    @property
+    def path(self):
+        return Path(
             f"{self.fetch_type.name.lower()}.{self.start_timestamp.isoformat()}.bin"
         )
 
+    async def on_transaction_complete(self):
+        path = self.path
+
+        path = path.with_suffix(".bin")
         with open(path, "wb") as f:
             f.write(self.buffer.getvalue())
+
         print(f"Saved to {path}")
 
     async def data_ack(self, keep_data_on_device: bool):
@@ -150,3 +159,26 @@ class DataFetch:
             bytes([DataCMD.ACTIVITY_DATA_START_DATE, fetch_type])
             + get_time_bytes(since, TimeUnit.MINUTES),
         )
+
+
+class CsvDataFetch(DataFetch):
+    sample_type: Type
+
+    @property
+    def path(self):
+        return Path(
+            f"{self.fetch_type.name.lower()}.{self.start_timestamp.isoformat()}.csv"
+        )
+
+    async def on_transaction_complete(self):
+        path = self.path
+        _fields = [i.name for i in fields(self.sample_type)]
+
+        with save_csv(path, _fields) as writer:
+            for sample in self.get_samples():
+                writer.writerow(asdict(sample))
+
+        print(f"Saved to {path}")
+
+    def get_samples(self) -> Iterator:
+        raise NotImplementedError()
