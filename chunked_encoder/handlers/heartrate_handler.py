@@ -25,19 +25,6 @@ class HeartRateClient(BaseHandler):
     endpoint = ChunkedEndpoint.HEARTRATE
     encrypted = False
 
-    async def __call__(self, payload: bytes):
-        cmd = HeartRateCmd(payload[0])
-        payload = payload[1:]
-
-        if cmd == HeartRateCmd.REALTIME_ACK:
-            self.logger.info("Band acknowledged realtime heart rate: ", payload[1])
-        elif cmd == HeartRateCmd.SLEEP:
-            status = SleepStatus(payload[1])
-            if status == SleepStatus.WAKE_UP:
-                self.logger.info("Woke up")
-            elif status == SleepStatus.FALL_ASLEEP:
-                self.logger.info("Fall asleep")
-
     async def start(self):
         await self.write(
             bytes([HeartRateCmd.REALTIME_SET, HeartRateRealtimeMode.START]),
