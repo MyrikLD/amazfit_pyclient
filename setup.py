@@ -12,12 +12,12 @@ setup(
         "cryptography",
     ],
     # Metadata
-    author="Myrik",
-    author_email="your@email.com",
-    description="Description of your project",
+    author="MyrikLD",
+    author_email="myrik260138@gmail.com",
+    description="Amazfit Python Client",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/yourproject",
+    url="https://github.com/MyrikLD/amazfit_pyclient",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

@@ -12,6 +12,7 @@ cryptography = "*"
 [dev-packages]
 pytest = "*"
 pytest-asyncio = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.11"
