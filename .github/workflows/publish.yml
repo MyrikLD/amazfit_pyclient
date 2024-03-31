@@ -23,6 +23,6 @@ jobs:
           python -m pip install --upgrade wheel
       - name: Build package
         run: |
-          pipenv run python setup.py egg_info bdist_wheel
+          python setup.py egg_info bdist_wheel
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
