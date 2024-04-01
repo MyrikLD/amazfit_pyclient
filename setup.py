@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="amazfit_pyclient",
-    version="0.2.3",  # Update with your project version
+    version="0.2.4",  # Update with your project version
     packages=find_packages(
         exclude=["tests"],
     ),
