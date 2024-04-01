@@ -24,7 +24,7 @@ class BaseHandler(Protocol):
     async def __call__(self, payload: bytes):
         handler = self.handlers.get(payload[0])
         if not handler:
-            self.logger.error(f"Handler not found: {payload[0]}")
+            self.logger.error(f"Handler not found: {payload[0]} -> {payload[1:]}")
             return
 
         await handler(self, payload[1:])

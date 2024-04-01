@@ -49,24 +49,25 @@ async def main(address: str, key: str):
         await decoder.start_notify()
         await eh.autenticate()
 
-        await steps.get_steps()
+        # await steps.get_steps()
         await conn.get_mtu()
+        # await battery.request_status()
 
         # print_chars(client)
 
         await notify_hr(client)
 
-        df = FetchActivity(client)
-        await df.start(
-            since=datetime.now().astimezone() - timedelta(days=1),
-        )
+        # df = FetchActivity(client)
+        # await df.start(
+        #     since=datetime.now().astimezone() - timedelta(days=1),
+        # )
+        # async with df.in_progress:
+        #     pass
+
         # df = FetchTemperature(client)
         # await df.start(since=datetime.now().astimezone() - timedelta(days=1))
 
-        async with df.in_progress:
-            pass
-
-        await client.disconnect()
+        # await client.disconnect()
 
         await disconnect_event.wait()
         print("Disconnected")

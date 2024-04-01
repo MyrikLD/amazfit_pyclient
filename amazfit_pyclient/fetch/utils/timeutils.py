@@ -32,24 +32,31 @@ class TimeUtils:
             + b"\0"
         )
 
-    @staticmethod
-    def bytes_time(data: bytes) -> datetime:
-        fmt = "<H5bH"
+    @classmethod
+    def bytes_time(cls, data: bytes) -> datetime:
+        fmt = "<H6b"
         size = struct.calcsize(fmt)
         assert len(data) == size, f"Expected {size} bytes, got {len(data)}"
         year, month, day, hour, minute, second, tz_ = struct.unpack(fmt, data)
-        tz = timedelta(seconds=tz_ * 15 * 60)
-        dt = datetime(year, month, day, hour, minute, second, tzinfo=timezone(tz))
+        tz = cls.bytes_tz(tz_)
+        dt = datetime(year, month, day, hour, minute, second, tzinfo=tz)
 
         return dt
 
-    @staticmethod
-    def short_bytes_time(data: bytes) -> datetime:
-        fmt = "H5b"
+    @classmethod
+    def short_bytes_time(cls, data: bytes) -> datetime:
+        fmt = "<H5b"
         size = struct.calcsize(fmt)
         assert len(data) == size, f"Expected {size} bytes, got {len(data)}"
         year, month, day, hour, minute, second = struct.unpack(fmt, data)
         return datetime(year, month, day, hour, minute, second)
+
+    @staticmethod
+    def bytes_tz(data: bytes) -> timezone:
+        if isinstance(data, bytes):
+            data = int.from_bytes(data)
+        tz = timezone(timedelta(seconds=data * 15 * 60))
+        return tz
 
 
 def get_time_bytes(timestamp: datetime, precision: TimeUnit) -> bytes:

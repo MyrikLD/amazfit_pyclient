@@ -1,4 +1,5 @@
 import asyncio
+import struct
 from dataclasses import asdict, fields
 from datetime import datetime
 from enum import Enum
@@ -92,11 +93,17 @@ class DataFetch:
             raise
 
     async def handle_start_date_response(self, data: bytes):
-        assert data[0] == 0x01, f"Failed to start date: {hex(data[0])}"
-        self.expected_data_length = int.from_bytes(data[1:5], "little")
-        self.start_timestamp = TimeUtils.bytes_time(data[5:])
+        (
+            status,
+            self.expected_data_length,
+            start_timestamp,
+            unknown,
+        ) = struct.unpack("<BI8sB", data)
+        assert status == 0x01, f"Failed to start date: {hex(status)}"
+        self.start_timestamp = TimeUtils.bytes_time(start_timestamp)
+
         self.log.info(
-            f"Start date: {self.start_timestamp}, expected data length: {self.expected_data_length}"
+            f"Start date: {self.start_timestamp}, expected data length: {self.expected_data_length}, {hex(unknown)=}"
         )
         await self.client.write_gatt_char(
             self.CHARACTERISTIC_ACTIVITY_METADATA, bytes([DataCMD.FETCH_DATA])
