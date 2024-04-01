@@ -10,8 +10,7 @@ from uuid import UUID
 
 from bleak import BleakClient, BleakGATTCharacteristic
 
-from .utils.csv_helper import save_csv
-from .utils.timeutils import get_time_bytes, TimeUnit, TimeUtils
+from .utils import get_time_bytes, save_csv, TimeUnit, TimeUtils
 
 
 class FetchType(int, Enum):
