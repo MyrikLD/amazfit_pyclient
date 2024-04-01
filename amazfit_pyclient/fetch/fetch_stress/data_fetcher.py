@@ -7,7 +7,7 @@ from ..data_fetch import CsvDataFetch, FetchType
 @dataclass
 class Sample:
     datetime: datetime
-    value: int
+    stress: int
 
     @classmethod
     def parse(cls, timestamp, data: int):
