@@ -6,7 +6,7 @@ from ..data_fetch import CsvDataFetch, FetchType
 
 @dataclass(frozen=True)
 class StressSample:
-    datetime: datetime
+    timestamp: datetime
     stress: int
 
     @classmethod
