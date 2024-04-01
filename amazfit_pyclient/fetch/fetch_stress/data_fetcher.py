@@ -5,7 +5,7 @@ from ..data_fetch import CsvDataFetch, FetchType
 
 
 @dataclass
-class Sample:
+class StressSample:
     datetime: datetime
     stress: int
 
@@ -15,7 +15,7 @@ class Sample:
 
 
 class FetchStress(CsvDataFetch):
-    sample_type = Sample
+    sample_type = StressSample
 
     async def start(self, since: datetime):
         await super().start(FetchType.STRESS_AUTOMATIC, since)

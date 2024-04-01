@@ -1,1 +1,1 @@
-from .data_fetcher import FetchStress
+from .data_fetcher import FetchStress, StressSample

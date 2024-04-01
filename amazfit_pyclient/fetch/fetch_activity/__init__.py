@@ -1,1 +1,1 @@
-from .data_fetcher import FetchActivity
+from .data_fetcher import FetchActivity, ActivitySample

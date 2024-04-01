@@ -6,7 +6,7 @@ from ..data_fetch import CsvDataFetch, FetchType
 
 
 @dataclass
-class Sample:
+class ActivitySample:
     timestamp: datetime
     kind: int
     intensity: int
@@ -23,7 +23,7 @@ class Sample:
 
 
 class FetchActivity(CsvDataFetch):
-    sample_type = Sample
+    sample_type = ActivitySample
 
     async def start(self, since: datetime):
         await super().start(FetchType.ACTIVITY, since)
