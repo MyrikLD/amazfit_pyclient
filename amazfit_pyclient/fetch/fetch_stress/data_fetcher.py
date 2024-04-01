@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from ..data_fetch import CsvDataFetch, FetchType
 
 
-@dataclass
+@dataclass(frozen=True)
 class StressSample:
     datetime: datetime
     stress: int
