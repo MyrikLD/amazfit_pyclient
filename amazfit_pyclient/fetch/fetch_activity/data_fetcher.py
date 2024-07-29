@@ -12,7 +12,7 @@ class ActivitySample:
     intensity: int
     steps: int
     heart_rate: int
-    unknown1: int
+    retain: int
     sleep: int
     deep_sleep: int
     rem_sleep: int

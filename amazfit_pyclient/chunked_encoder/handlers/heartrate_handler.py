@@ -35,6 +35,11 @@ class HeartRateClient(BaseHandler):
             bytes([HeartRateCmd.REALTIME_SET, HeartRateRealtimeMode.STOP]),
         )
 
+    async def test(self):
+        await self.write(
+            bytes([0x03]),
+        )
+
 
 @HeartRateClient.handler(HeartRateCmd.REALTIME_ACK)
 async def realtime_ack_handler(self: HeartRateClient, payload: bytes):

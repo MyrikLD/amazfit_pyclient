@@ -23,7 +23,9 @@ class StepsClient(BaseHandler):
         )
 
     async def get_steps(self):
-        await self.write(StepsCmd.GET.to_bytes(1, "little"))
+        await self.write(
+            bytes([StepsCmd.GET]),
+        )
 
 
 @StepsClient.handler(StepsCmd.REPLY)
