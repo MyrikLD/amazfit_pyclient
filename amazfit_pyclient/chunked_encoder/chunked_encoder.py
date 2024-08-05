@@ -63,6 +63,8 @@ class ChunkedEncoder:
             return
 
         self.write_handle += 1
+        if self.write_handle >= 256:
+            self.write_handle = 0
 
         count = 0
         header_size = 11
