@@ -43,12 +43,12 @@ class HeartRateClient(BaseHandler):
 
 @HeartRateClient.handler(HeartRateCmd.REALTIME_ACK)
 async def realtime_ack_handler(self: HeartRateClient, payload: bytes):
-    self.logger.info("Band acknowledged realtime heart rate: ", payload[1])
+    self.logger.info("Band acknowledged realtime heart rate: ", payload[0])
 
 
 @HeartRateClient.handler(HeartRateCmd.SLEEP)
 async def sleep_handler(self: HeartRateClient, payload: bytes):
-    status = SleepStatus(payload[1])
+    status = SleepStatus(payload[0])
     if status == SleepStatus.WAKE_UP:
         self.logger.info("Woke up")
     elif status == SleepStatus.FALL_ASLEEP:
